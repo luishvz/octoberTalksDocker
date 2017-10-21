@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  uaa-db:
+    container_name: uaa-db
+    build: ./project/resources
+    ports:
+        - 5435:5432  # expose ports - HOST:CONTAINER
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  uaa-service:
+    container_name: uaa-service
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 5001:5000
+    environment:
+      - APP_SETTINGS=project.config.DevelopmentConfig
+      - DATABASE_URL=postgres://postgres:postgres@uaa-db:5432/uaa_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@uaa-db:5432/uaa_test
+    depends_on:
+      - uaa-db
+    links:
+      - uaa-db
